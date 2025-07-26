@@ -1,22 +1,366 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Кейсы</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Мини кейсы с картинками</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  body {
+    margin:0; padding:0;
+    font-family: 'Inter', sans-serif;
+    background:#0f111a;
+    color:#eee;
+    display:flex; flex-direction: column; height: 100vh;
+  }
+  header {
+    padding: 20px; text-align:center;
+    font-weight:700; font-size:24px;
+    background:#181a27;
+    letter-spacing:1.5px;
+    user-select:none;
+  }
+  main {
+    flex-grow:1;
+    overflow:hidden;
+    position:relative;
+  }
+  nav {
+    display:flex; justify-content:space-around;
+    background:#181a27;
+  }
+  nav button {
+    flex:1;
+    padding:15px 0;
+    font-weight:600;
+    font-size:14px;
+    background:none;
+    border:none;
+    color:#bbb;
+    cursor:pointer;
+    transition:color 0.3s;
+  }
+  nav button.active,
+  nav button:hover {
+    color:#5cffd5;
+  }
+  #cases-section {
+    padding:20px;
+    display:flex;
+    gap:20px;
+    justify-content:center;
+  }
+  .case-card {
+    background:#222539;
+    border-radius:15px;
+    width:140px;
+    cursor:pointer;
+    user-select:none;
+    transition:transform 0.3s ease;
+    box-shadow:0 0 10px #16f6d6aa;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    padding:15px;
+    color:#5cffd5;
+    font-weight:700;
+  }
+  .case-card:hover {
+    transform: scale(1.05);
+    box-shadow:0 0 20px #16f6d6ff;
+  }
+
+  #case-open-section {
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background:#11141f;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 25px;
+    user-select:none;
+  }
+  #case-open-section.hidden {
+    display:none;
+  }
+  #case-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #5cffd5;
+    letter-spacing: 1.3px;
+  }
+  #roulette {
+    width: 360px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #222539;
+    box-shadow: inset 0 0 15px #16f6d6bb;
+    position: relative;
+  }
+  #roulette-strip {
+    display: flex;
+    transition: transform 0s ease-out;
+  }
+  .prize-item {
+    flex: 0 0 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #16f6d688;
+    color:#5cffd5;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .prize-item:last-child {
+    border-right: none;
+  }
+  .prize-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 0 2px #5cffd5);
+  }
+  #pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 0; 
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 20px solid #5cffd5;
+    filter: drop-shadow(0 0 5px #5cffd5);
+  }
+  #open-case-btn {
+    background: #5cffd5;
+    color: #11141f;
+    font-weight: 700;
+    font-size: 18px;
+    border-radius: 12px;
+    padding: 15px 30px;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s;
+  }
+  #open-case-btn:disabled {
+    background: #39b8a7;
+    cursor: default;
+  }
+  #open-case-btn:hover:not(:disabled) {
+    background: #3ad6c3;
+  }
+  #prize-result {
+    font-size: 24px;
+    font-weight: 700;
+    color: #5cffd5;
+    min-height: 80px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+  }
+  #prize-result img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px #5cffd5);
+  }
+  #back-to-cases {
+    background: none;
+    border: none;
+    color: #5cffd5;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+  }
+  #back-to-cases:hover {
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-  <h1>🎁 Кейсы</h1>
-  <div class="case" onclick="openCase('New Gifts')">
-    <h2>New Gifts</h2>
-    <p>Нажми, чтобы открыть</p>
-  </div>
-  <div class="case" onclick="openCase('Best')">
-    <h2>Best</h2>
-    <p>Нажми, чтобы открыть</p>
-  </div>
-  <div id="result"></div>
+<header>Мини кейсы с картинками</header>
+<main>
+  <section id="cases-section"></section>
 
-  <script src="script.js"></script>
+  <section id="case-open-section" class="hidden">
+    <div id="case-name">Кейс</div>
+    <div id="roulette">
+      <div id="roulette-strip"></div>
+      <div id="pointer"></div>
+    </div>
+    <button id="open-case-btn">Открыть кейс</button>
+    <div id="prize-result"></div>
+    <button id="back-to-cases">Назад к кейсам</button>
+  </section>
+</main>
+<nav>
+  <button id="btn-cases" class="active">Кейсы</button>
+  <button id="btn-inventory">Инвентарь</button>
+  <button id="btn-profile">Профиль</button>
+</nav>
+
+<script>
+  const user = {
+    inventory: []
+  };
+
+  // Кейсы с призами: {название: [{name: "название", img: "ссылка"}]}
+  const cases = {
+    "New Gifts": [
+      {name:"Подарок 1", img:"https://i.imgur.com/0WZ8CqT.png"},
+      {name:"Подарок 2", img:"https://i.imgur.com/GVHaWGu.png"},
+      {name:"Подарок 3", img:"https://i.imgur.com/WqXcoNn.png"},
+      {name:"Подарок 4", img:"https://i.imgur.com/ZpjAfN5.png"},
+      {name:"Подарок 5", img:"https://i.imgur.com/1L8Q5ZK.png"},
+      {name:"Подарок 6", img:"https://i.imgur.com/xD0XwHz.png"}
+    ],
+    "Best": [
+      {name:"Трофей", img:"https://i.imgur.com/UVXQk3z.png"},
+      {name:"Секретный скин", img:"https://i.imgur.com/oT3Ti5k.png"},
+      {name:"VIP 7 дней", img:"https://i.imgur.com/pnGmjoR.png"},
+      {name:"100 монет", img:"https://i.imgur.com/jDzOqcz.png"},
+      {name:"Ничего", img:"https://i.imgur.com/hJlAv6K.png"},
+      {name:"Редкий предмет", img:"https://i.imgur.com/4KaY2Wk.png"}
+    ]
+  };
+
+  const casesSection = document.getElementById('cases-section');
+  const caseOpenSection = document.getElementById('case-open-section');
+  const caseNameElem = document.getElementById('case-name');
+  const rouletteStrip = document.getElementById('roulette-strip');
+  const openBtn = document.getElementById('open-case-btn');
+  const prizeResult = document.getElementById('prize-result');
+  const backToCasesBtn = document.getElementById('back-to-cases');
+
+  const navCases = document.getElementById('btn-cases');
+  const navInventory = document.getElementById('btn-inventory');
+  const navProfile = document.getElementById('btn-profile');
+
+  let currentCase = null;
+  let spinning = false;
+
+  function showSection(section) {
+    if(section === 'cases') {
+      casesSection.style.display = 'flex';
+      caseOpenSection.classList.add('hidden');
+      setActiveNav('cases');
+    } else if(section === 'case-open') {
+      casesSection.style.display = 'none';
+      caseOpenSection.classList.remove('hidden');
+      setActiveNav(null);
+    } else {
+      alert('В разработке');
+    }
+  }
+
+  function setActiveNav(name) {
+    navCases.classList.toggle('active', name==='cases');
+    navInventory.classList.toggle('active', name==='inventory');
+    navProfile.classList.toggle('active', name==='profile');
+  }
+
+  function renderCases() {
+    casesSection.innerHTML = '';
+    for (const caseName in cases) {
+      const card = document.createElement('div');
+      card.className = 'case-card';
+      card.textContent = caseName;
+      card.onclick = () => openCaseScreen(caseName);
+      casesSection.appendChild(card);
+    }
+  }
+
+  function openCaseScreen(caseName) {
+    if(spinning) return;
+    currentCase = caseName;
+    caseNameElem.textContent = caseName;
+    prizeResult.innerHTML = '';
+    openBtn.disabled = false;
+
+    const prizes = cases[caseName];
+    rouletteStrip.innerHTML = '';
+
+    // Повторяем призы 10 раз для плавности
+    for(let i=0; i<10; i++) {
+      prizes.forEach(prize => {
+        const div = document.createElement('div');
+        div.className = 'prize-item';
+        div.innerHTML = `<img src="${prize.img}" alt="${prize.name}" /><div>${prize.name}</div>`;
+        rouletteStrip.appendChild(div);
+      });
+    }
+    rouletteStrip.style.transform = 'translateX(0px)';
+
+    showSection('case-open');
+  }
+
+  function spinRoulette() {
+    if(spinning) return;
+    spinning = true;
+    openBtn.disabled = true;
+    prizeResult.innerHTML = '';
+
+    const prizes = cases[currentCase];
+    const prizeCount = prizes.length;
+    const singleWidth = 100;
+    const totalItems = prizeCount * 10;
+
+    const prizeIndex = Math.floor(Math.random() * prizeCount);
+
+    const baseShift = -((totalItems - 5) * singleWidth);
+    const finalShift = baseShift + prizeIndex * singleWidth;
+
+    let start = null;
+    const duration = 5000;
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function animate(timestamp) {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutCubic(progress);
+      const currentShift = easedProgress * finalShift;
+
+      rouletteStrip.style.transform = `translateX(${currentShift}px)`;
+
+      if(progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        spinning = false;
+        openBtn.disabled = false;
+        const prize = prizes[prizeIndex];
+        prizeResult.innerHTML = `<img src="${prize.img}" alt="${prize.name}"><span>Вы выиграли: ${prize.name}!</span>`;
+        user.inventory.push(prize);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // События
+  openBtn.addEventListener('click', spinRoulette);
+  backToCasesBtn.addEventListener('click', () => showSection('cases'));
+  navCases.addEventListener('click', () => showSection('cases'));
+  navInventory.addEventListener('click', () => alert('Инвентарь пока не реализован'));
+  navProfile.addEventListener('click', () => alert('Профиль пока не реализован'));
+
+  // Запуск
+  renderCases();
+  showSection('cases');
+</script>
 </body>
 </html>

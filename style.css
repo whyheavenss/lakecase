@@ -1,0 +1,23 @@
+body {
+  background-color: #1c1c1c;
+  color: #fff;
+  font-family: sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+.case {
+  background: #292929;
+  margin: 20px auto;
+  padding: 20px;
+  width: 80%;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.case:hover {
+  background: #444;
+}
+#result {
+  margin-top: 20px;
+  font-size: 20px;
+}
